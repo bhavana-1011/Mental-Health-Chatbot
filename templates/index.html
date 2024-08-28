@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mental Health Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+        }
+        #chatbox {
+            width: 400px;
+            height: 500px;
+            border: 1px solid #d45757;
+            border-radius: 5px;
+            background-color: #95b6ed;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+        #messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+        #input-box {
+            display: flex;
+            align-items: center;
+        }
+        #user-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #f07070;
+            border-radius: 5px;
+        }
+        #send-btn {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+        }
+        #send-btn:hover {
+            background-color: #0056b3;
+        }
+        .message {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .message img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .message.user {
+            flex-direction: row-reverse;
+            text-align: right;
+        }
+        .message.bot {
+            flex-direction: row;
+        }
+    </style>
+</head>
+<body>
+    <div id="chatbox">
+        <div id="messages"></div>
+        <div id="input-box">
+            <input type="text" id="user-input" placeholder="Type your message here...">
+            <button id="send-btn">Send</button>
+        </div>
+    </div>
+    <script>
+        document.getElementById('send-btn').addEventListener('click', function() {
+            const userInput = document.getElementById('user-input').value;
+            if (userInput.trim() === '') return;
+            // Add user message
+            const userMessage = `
+                <div class="message user">
+                    <div>You: ${userInput}</div>
+                </div>`;
+            document.getElementById('messages').innerHTML += userMessage;
+            document.getElementById('user-input').value = '';
+            
+            // Fetch chatbot response
+            fetch(`/get?msg=${encodeURIComponent(userInput)}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Add chatbot response with profile image
+                    const botMessage = `
+                        <div class="message bot">
+                            <div><img src="/static/chatbot-profile.png" alt="Chatbot"></div>
+                            <div>Chatbot: ${data.response}</div>
+                        </div>`;
+                    document.getElementById('messages').innerHTML += botMessage;
+                    document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+                });
+        });
+
+        document.getElementById('user-input').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                document.getElementById('send-btn').click();
+            }
+        });
+    </script>
+</body>
+</html>
